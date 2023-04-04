@@ -2,7 +2,7 @@ import logging.config
 
 import yaml
 
-from app.config.db import load_db_config
+from app.models.config.db import DBConfig
 from app.models.config import Config
 from app.models.config.main import Paths, BotConfig, BotApiConfig, BotApiType
 
@@ -17,6 +17,13 @@ def load_config(paths: Paths) -> Config:
         paths=paths,
         db=load_db_config(config_dct["db"]),
         bot=load_bot_config(config_dct["bot"]),
+    )
+
+
+def load_db_config(db_dict: dict) -> DBConfig:
+    return DBConfig(
+        type=db_dict.get('type', None),
+        path=db_dict.get('path', None),
     )
 
 
