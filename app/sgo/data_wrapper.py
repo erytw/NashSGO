@@ -2,7 +2,7 @@ import datetime
 from functools import wraps
 from netschoolapi import NetSchoolAPI, errors, schemas
 
-from constants import symbols
+# from constants import symbols
 
 import netschool
 
@@ -36,9 +36,14 @@ class netschool_collector():
     @exception_handler
     async def school(self, lgdata):
         data = await self.session.get_school_data(*lgdata)
-        return f"Название школы: {data.name}\nДиректор: {data.director}\nСайт: {data.site}\nemail: {data.email}\nКонтактный телефон: {data.phone}"
+        return f"Название школы: {data.name}\n" \
+               f"Директор: {data.director}\n" \
+               f"Сайт: {data.site}\n" \
+               f"email: {data.email}\n" \
+               f"Контактный телефон: {data.phone}"
 
     @exception_handler
     async def homework(self, lgdata):
         data = await self.session.get_next_day(*lgdata)
-        return f"Уроки на {datetime.datetime.strftime(data.day, '%d.%m')}:\n"+"\n".join(sorted(map(lesson_transformer_homework, data.lessons)))
+        return f"Уроки на {datetime.datetime.strftime(data.day, '%d.%m')}:" \
+               f"\n"+"\n".join(sorted(map(lesson_transformer_homework, data.lessons)))

@@ -8,7 +8,7 @@ from functools import wraps
 
 def login(method):
     @wraps(method)
-    async def wrapper(self, login: str, password: str, school: str, *method_args, **method_kwargs):
+    async def wrapper(self, login: str, password: str, school: str | int, *method_args, **method_kwargs):
         await self.ns.login(login, password, school)
         result = await method(self, *method_args, **method_kwargs)
         await self.ns.logout()
