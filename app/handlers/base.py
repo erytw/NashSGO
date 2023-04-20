@@ -3,6 +3,7 @@ import logging
 from aiogram import Dispatcher, F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove, ContentType
 
 from aiogram.utils.markdown import html_decoration as hd
@@ -14,8 +15,39 @@ from app.services.chat import update_chat_id
 logger = logging.getLogger(__name__)
 
 
+class SGORegistrate(StatesGroup):
+    choosing_login = State()
+    choosing_password = State()
+    choosing_school = State()
+
+
 async def start_cmd(message: Message):
     await message.reply("Hi!")
+
+
+async def login_cmd(message: Message, state: FSMContext):
+    await message.answer(text="Пришлите ваш логин:")
+    await state.set_state(SGORegistrate.choosing_login)
+
+
+async def login(message: Message, state: FSMContext):
+    await state.update_data(login=message.text)
+    await message.answer(text="Пришлите ваш пароль:")
+    await state.set_state(SGORegistrate.choosing_password)
+
+
+async def password(message: Message, state: FSMContext):
+    await state.update_data(passsword=message.text.lower())
+    await message.answer(text="Пришлите школу:")
+    await state.set_state(SGORegistrate.choosing_school)
+    
+
+async def end_logining(message: Message, state: FSMContext):
+    await state.update_data(school=message.text.lower())
+    data = await state.get_data()
+    await message.answer(text="Данные верны")
+    print(data)
+    await state.clear()
 
 
 async def chat_id(message: Message):
@@ -51,6 +83,10 @@ async def chat_migrate(message: Message, chat: dto.Chat, dao: HolderDao):
 def setup_base(dp: Dispatcher):
     router = Router(name=__name__)
     router.message.register(start_cmd, Command("start"))
+    router.message.register(login_cmd, Command('login'))
+    router.message.register(login, SGORegistrate.choosing_login)
+    router.message.register(password, SGORegistrate.choosing_password)
+    router.message.register(end_logining, SGORegistrate.choosing_school)
     router.message.register(
         chat_id, Command(commands=["idchat", "chat_id", "id"], prefix="/!"),
     )
