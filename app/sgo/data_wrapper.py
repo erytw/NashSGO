@@ -11,12 +11,12 @@ import netschool
 def exception_handler(method):
     @wraps(method)
     async def wrapper(self, *method_args, **method_kwargs):
-        # try:
-        result = await method(self, *method_args, **method_kwargs)
-        # except (errors.NetSchoolAPIError):
-        #     result = "Ошибка Сетевого Города, попробуйте позже🙃"
-        # except Exception:
-        #     result = "Ошибка бота. Данные об ошибке получены, скоро исправим❤️‍🩹"
+        try:
+            result = await method(self, *method_args, **method_kwargs)
+        except (errors.NetSchoolAPIError):
+            result = "Ошибка Сетевого Города, попробуйте позже🙃"
+        except Exception:
+            result = "Ошибка бота. Данные об ошибке получены, скоро исправим❤️‍🩹"
         return result
     return wrapper
 
@@ -86,9 +86,9 @@ class netschool_collector():
 
     # Получение оценок за ближайший день
     @exception_handler
-    async def marks(self, lgdata, time: datetime.datetime = datetime.datetime.now()):
+    async def marks(self, lgdata, time: datetime.datetime = datetime.datetime.now(), show_average: bool = False):
         data = await self.session.get_last_day(*lgdata, time)
-        result = form_period_report([data])
+        result = form_period_report([data], show_average)
         if len(result) == 0:
             result.append("Нет оценок 👻")
         return f"Результаты за {datetime.datetime.strftime(data.day, '%d.%m')}:\n" + "\n".join(result)
