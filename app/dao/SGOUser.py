@@ -3,36 +3,35 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.dao.base import BaseDAO
-from app.models.db import User
+from app.models.db import SGOUser
 from app.models import dto
 
 
-class UserDAO(BaseDAO[User]):
+class SGOUserDAO(BaseDAO[SGOUser]):
     def __init__(self, session: AsyncSession):
-        super().__init__(User, session)
+        super().__init__(SGOUser, session)
 
-    async def get_by_tg_id(self, tg_id: int) -> User:
+    async def get_by_tg_id(self, tg_id: int) -> SGOUser:
         result = await self.session.execute(
-            select(User).where(User.tg_id == tg_id)
+            select(SGOUser).where(SGOUser.tg_id == tg_id)
         )
         return result.scalar_one()
 
-    async def upsert_user(self, user: dto.User) -> dto.User:
+    async def upsert_user(self, user: dto.SGOUser) -> dto.SGOUser:
         kwargs = dict(
             tg_id=user.tg_id,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            username=user.username,
-            is_bot=user.is_bot,
+            login=user.login,
+            password=user.password,
+            school=user.school,
         )
         saved_user = await self.session.execute(
-            insert(User)
+            insert(SGOUser)
             .values(**kwargs)
             .on_conflict_do_update(
-                index_elements=(User.tg_id,),
+                index_elements=(SGOUser.tg_id,),
                 set_=kwargs,
-                where=User.tg_id == user.tg_id
+                where=SGOUser.tg_id == user.tg_id
             )
-            .returning(User)
+            .returning(SGOUser)
         )
         return saved_user.scalar_one().to_dto()

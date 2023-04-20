@@ -22,7 +22,7 @@ class User(Base):
         )
         if self.username:
             rez += f"username=@{self.username}"
-        return rez + ">"
+        return f"{rez}>"
 
     def to_dto(self) -> dto.User:
         return dto.User(

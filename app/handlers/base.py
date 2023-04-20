@@ -19,6 +19,7 @@ class SGORegistrate(StatesGroup):
     choosing_login = State()
     choosing_password = State()
     choosing_school = State()
+    save_to_db = State()
 
 
 async def start_cmd(message: Message):
@@ -31,23 +32,37 @@ async def login_cmd(message: Message, state: FSMContext):
 
 
 async def login(message: Message, state: FSMContext):
+    await state.update_data(tg_id=message.from_user.id)
     await state.update_data(login=message.text)
     await message.answer(text="Пришлите ваш пароль:")
     await state.set_state(SGORegistrate.choosing_password)
 
 
 async def password(message: Message, state: FSMContext):
-    await state.update_data(passsword=message.text.lower())
+    await state.update_data(password=message.text.lower())
     await message.answer(text="Пришлите школу:")
     await state.set_state(SGORegistrate.choosing_school)
     
 
-async def end_logining(message: Message, state: FSMContext):
+async def school(message: Message, state: FSMContext):
     await state.update_data(school=message.text.lower())
     data = await state.get_data()
-    await message.answer(text="Данные верны")
-    print(data)
-    await state.clear()
+    await message.answer(f"Это ваши данные?{data.values()}\n(да/нет)\n<тут будут кнопки и норм вывод>")
+    await state.set_state(SGORegistrate.save_to_db)
+
+
+async def approve_data_sgo(message: Message, state: FSMContext):
+    if message.text.lower() == 'да':
+        await message.answer(text="Аккаунт Добавлен")
+        await state.clear()
+    elif message.text.lower() == 'нет':
+        await state.clear()
+        await message.answer('Попробуем снова, введите логин:\n<тут надо будет систему обработчиков, скоро займусь>')
+        await state.set_state(SGORegistrate.choosing_login)
+
+
+async def continue_reg_sgo(message: Message, state: FSMContext):
+    pass
 
 
 async def chat_id(message: Message):
@@ -86,7 +101,8 @@ def setup_base(dp: Dispatcher):
     router.message.register(login_cmd, Command('login'))
     router.message.register(login, SGORegistrate.choosing_login)
     router.message.register(password, SGORegistrate.choosing_password)
-    router.message.register(end_logining, SGORegistrate.choosing_school)
+    router.message.register(school, SGORegistrate.choosing_school)
+    router.message.register(approve_data_sgo, SGORegistrate.save_to_db)
     router.message.register(
         chat_id, Command(commands=["idchat", "chat_id", "id"], prefix="/!"),
     )
