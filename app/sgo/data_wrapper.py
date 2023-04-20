@@ -1,23 +1,26 @@
-import datetime
+from _datetime import datetime
 from functools import wraps
-from netschoolapi import NetSchoolAPI, errors, schemas
+from netschoolapi import errors, schemas
 
-from constants import symbols
+from constants import symbols, DAY_FORMAT
 
 import netschool
 
 
-# Обработчик ошибок, доставляет пользователю базовую информацию
 def exception_handler(method):
+    """Обработчик ошибок, доставляет пользователю базовую информацию"""
+
     @wraps(method)
     async def wrapper(self, *method_args, **method_kwargs):
         try:
             result = await method(self, *method_args, **method_kwargs)
-        except (errors.NetSchoolAPIError):
+        except errors.NetSchoolAPIError:
             result = "Ошибка Сетевого Города, попробуйте позже🙃"
         except Exception:
-            result = "Ошибка бота. Данные об ошибке получены, скоро исправим❤️‍🩹"
+            result = "Ошибка бота. " \
+                     "Данные об ошибке получены, скоро исправим❤️‍🩹"
         return result
+
     return wrapper
 
 
@@ -27,13 +30,15 @@ def assignment_transformer_homework(assignment):
 
 def lesson_transformer_homework(lesson: schemas.Lesson):
     assignments = list(filter(lambda x: len(x) > 0,
-                              map(assignment_transformer_homework, lesson.assignments)))
+                              map(assignment_transformer_homework,
+                                  lesson.assignments)))
     dz = '\nД/з: '
-    return f"{lesson.number}.{lesson.subject}{dz if len(assignments) > 0 else ''}{' '.join(assignments)}"
+    return f"{lesson.number}.{lesson.subject}" \
+           f"{dz if assignments else ''}{' '.join(assignments)}"
 
 
-# Формирование словаря с отчетом за период
 def get_period_report(schedule: list[schemas.Day]) -> dict:
+    """Формирование словаря с отчетом за период"""
     result = dict()
     for day in schedule:
         for lesson in day.lessons:
@@ -49,8 +54,9 @@ def get_period_report(schedule: list[schemas.Day]) -> dict:
     return result
 
 
-# Формирование текста с отчетом за период
-def form_period_report(schedule: list[schemas.Day], show_average: bool) -> list[str]:
+def form_period_report(schedule: list[schemas.Day],
+                       show_average: bool) -> list[str]:
+    """Формирование текста с отчетом за период"""
     data = get_period_report(schedule)
     result = []
     for subject, marks in data.items():
@@ -59,13 +65,15 @@ def form_period_report(schedule: list[schemas.Day], show_average: bool) -> list[
             f"{subject}: {''.join(str(mark) for mark in marks)}")
         if show_average:
             # result[-1] += f"\nСредний балл: {round(sum(marks)/len(marks), 2)}"
-            result[-1] += f"  Ср: {round(sum(marks)/len(marks), 2)}"
+            result[-1] += f"  Ср: {round(sum(marks) / len(marks), 2)}"
     return result
 
-# Класс для текстовой обработки данных сетевого города
-class netschool_collector():
+
+class NetschoolCollector:
+    """Класс для текстовой обработки данных сетевого города"""
+
     def __init__(self):
-        self.session = netschool.sgoproc()
+        self.session = netschool.SGOProc()
 
     @exception_handler
     async def school(self, lgdata):
@@ -73,35 +81,41 @@ class netschool_collector():
         return f"Название школы: {data.name}\n" \
                f"Директор: {data.director}\n" \
                f"Сайт: {data.site}\n" \
-               f"email: {data.email}\n" \
+               f"Почта: {data.email}\n" \
                f"Контактный телефон: {data.phone}"
 
-    # Получение домашки на завтра
     @exception_handler
-    async def homework(self, lgdata, time: datetime.datetime = datetime.datetime.now()):
+    async def homework(self, lgdata, time: datetime = datetime.now()):
+        """Получение д/з на завтра"""
         data = await self.session.get_next_day(*lgdata, time)
-        return f"Уроки на {datetime.datetime.strftime(data.day, '%d.%m')}:" \
+        return f"Уроки на {datetime.strftime(data.day, DAY_FORMAT)}:" \
                f"\n" + \
             "\n".join(sorted(map(lesson_transformer_homework, data.lessons)))
 
-    # Получение оценок за ближайший день
     @exception_handler
-    async def marks(self, lgdata, time: datetime.datetime = datetime.datetime.now(), show_average: bool = False):
+    async def marks(self,
+                    lgdata,
+                    time: datetime = datetime.now(),
+                    show_average: bool = False):
+        """Получение оценок за ближайший день"""
         data = await self.session.get_last_day(*lgdata, time)
         result = form_period_report([data], show_average)
         if len(result) == 0:
             result.append("Нет оценок 👻")
-        return f"Результаты за {datetime.datetime.strftime(data.day, '%d.%m')}:\n" + "\n".join(result)
+        return f"Результаты за {datetime.strftime(data.day, DAY_FORMAT)}:\n" \
+            + "\n".join(result)
 
-    # Получение оценок за период
     @exception_handler
     async def period_marks(self, lgdata,
-                           start_date: datetime.datetime = datetime.datetime.now(),
-                           end_date: datetime.datetime = datetime.datetime.now(),
+                           start_date: datetime = datetime.now(),
+                           end_date: datetime = datetime.now(),
                            show_average: bool = True):
+        """Получение оценок за период"""
         data = await self.session.get_period(*lgdata, start_date, end_date)
         result = form_period_report(data, show_average)
         if len(result) == 0:
             result.append("Нет оценок 👻")
-        return f"Результаты за {datetime.datetime.strftime(start_date, '%d.%m')}-{datetime.datetime.strftime(end_date, '%d.%m')}:\n" +\
+        return f"Результаты за " \
+               f"{datetime.strftime(start_date, DAY_FORMAT)}-" \
+               f"{datetime.strftime(end_date, DAY_FORMAT)}:\n" + \
             '\n'.join(result)
