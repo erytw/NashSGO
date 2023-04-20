@@ -53,7 +53,6 @@ class Paths:
 class BotConfig:
     token: str
     log_chat: int
-    superusers: list[int]
     bot_api: BotApiConfig
 
     def create_session(self) -> AiohttpSession | None:

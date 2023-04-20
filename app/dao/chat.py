@@ -20,13 +20,11 @@ class ChatDAO(BaseDAO[Chat]):
     async def upsert_chat(self, chat: dto.Chat) -> dto.Chat:
         kwargs = dict(tg_id=chat.tg_id, title=chat.title, username=chat.username, type=chat.type)
         saved_chat = await self.session.scalars(
-            insert(Chat)
-            .values(**kwargs)
-            .on_conflict_do_update(
-                index_elements=(Chat.tg_id,), set_=kwargs, where=Chat.tg_id == chat.tg_id
-            )
-            .returning(Chat)
-        )
+            insert(Chat).values(**kwargs).on_conflict_do_update(
+                index_elements=(Chat.tg_id,),
+                set_=kwargs,
+                where=Chat.tg_id == chat.tg_id
+            ).returning(Chat))
         return saved_chat.one().to_dto()
 
     async def update_chat_id(self, chat: dto.Chat, new_id: int):
