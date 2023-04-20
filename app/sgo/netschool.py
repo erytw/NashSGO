@@ -48,3 +48,11 @@ class sgoproc():
         date -= datetime.timedelta(hours=8)
         date = date.date()
         return (await self.ns.diary(start=date-datetime.timedelta(days=7), end=date)).schedule[-1]
+
+    # Получешие периода (Для отчетов)
+    @login
+    async def get_period(self, start_date: datetime.datetime = datetime.datetime.now(),
+                         end_date: datetime.datetime = datetime.datetime.now()):
+        start_date = start_date.date()
+        end_date = end_date.date()
+        return (await self.ns.diary(start=start_date, end=end_date)).schedule

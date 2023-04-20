@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from data_wrapper import netschool_collector
 from netschool import sgoproc
 import asyncio
@@ -8,6 +8,6 @@ from personal import lgdata
 
 collector = netschool_collector()
 proc = sgoproc()
-time = datetime.now()
+time = datetime.datetime.now()
 print(asyncio.run(collector.homework(lgdata)))
-print(datetime.now() - time)
+print(datetime.datetime.now() - time)
