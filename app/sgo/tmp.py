@@ -9,5 +9,5 @@ from personal import lgdata
 collector = NetschoolCollector()
 proc = SGOProc()
 time = datetime.datetime.now()
-print(asyncio.run(collector.marks(lgdata)))
+print(asyncio.run(collector.data_validator(lgdata)))
 print(datetime.datetime.now() - time)

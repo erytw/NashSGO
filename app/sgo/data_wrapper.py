@@ -2,23 +2,21 @@ from _datetime import datetime
 from functools import wraps
 from netschoolapi import errors, schemas
 
-from constants import symbols, DAY_FORMAT
+from constants import SYMBOLS, RESPONSES, DAY_FORMAT
 
 import netschool
 
 
 def exception_handler(method):
     """Обработчик ошибок, доставляет пользователю базовую информацию"""
-
     @wraps(method)
     async def wrapper(self, *method_args, **method_kwargs):
         try:
             result = await method(self, *method_args, **method_kwargs)
         except errors.NetSchoolAPIError:
-            result = "Ошибка Сетевого Города, попробуйте позже🙃"
+            result = RESPONSES["netschool_error"]
         except Exception:
-            result = "Ошибка бота. " \
-                     "Данные об ошибке получены, скоро исправим❤️‍🩹"
+            result = RESPONSES["bot_error"]
         return result
 
     return wrapper
@@ -60,7 +58,7 @@ def form_period_report(schedule: list[schemas.Day],
     data = get_period_report(schedule)
     result = []
     for subject, marks in data.items():
-        # result.append(f"{subject}: {''.join(symbols[mark] for mark in marks)}\nСредний балл: {sum(marks)/len(marks)}")
+        # result.append(f"{subject}: {''.join(SYMBOLS[ RESPONSES,mark] for mark in marks)}\nСредний балл: {sum(marks)/len(marks)}")
         result.append(
             f"{subject}: {''.join(str(mark) for mark in marks)}")
         if show_average:
@@ -74,6 +72,14 @@ class NetschoolCollector:
 
     def __init__(self):
         self.session = netschool.SGOProc()
+
+    async def data_validator(self, lgdata) -> bool:
+        """True для корректных данных, False для некорректных"""
+        try:
+            await self.session.empty_request(*lgdata)
+            return True
+        except Exception:
+            return False
 
     @exception_handler
     async def school(self, lgdata):
@@ -101,7 +107,7 @@ class NetschoolCollector:
         data = await self.session.get_last_day(*lgdata, time)
         result = form_period_report([data], show_average)
         if len(result) == 0:
-            result.append("Нет оценок 👻")
+            result.append(RESPONSES["no_homework"])
         return f"Результаты за {datetime.strftime(data.day, DAY_FORMAT)}:\n" \
             + "\n".join(result)
 
@@ -114,7 +120,7 @@ class NetschoolCollector:
         data = await self.session.get_period(*lgdata, start_date, end_date)
         result = form_period_report(data, show_average)
         if len(result) == 0:
-            result.append("Нет оценок 👻")
+            result.append(RESPONSES["no_homework"])
         return f"Результаты за " \
                f"{datetime.strftime(start_date, DAY_FORMAT)}-" \
                f"{datetime.strftime(end_date, DAY_FORMAT)}:\n" + \

@@ -29,6 +29,10 @@ class SGOProc:
         self.ns = NetSchoolAPI(host)
 
     @login
+    async def empty_request(self):
+        return
+
+    @login
     async def get_school_data(self):
         """Получение информации о школе"""
         return await self.ns.school()
