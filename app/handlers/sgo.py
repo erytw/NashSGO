@@ -6,7 +6,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
+from app.dao.holder import HolderDao
 from app.sgo.data_wrapper import NetschoolCollector
+from app.services.SGOUser import get_sgo_user
 
 
 logger = logging.getLogger(__name__)
@@ -33,13 +35,13 @@ async def login(message: Message, state: FSMContext):
 
 
 async def password(message: Message, state: FSMContext):
-    await state.update_data(password=message.text.lower())
+    await state.update_data(password=message.text)
     await message.answer(text="Пришлите школу:")
     await state.set_state(SGORegistrate.choosing_school)
 
 
 async def school(message: Message, state: FSMContext):
-    await state.update_data(school=message.text.lower())
+    await state.update_data(school=message.text)
     data = await state.get_data()
     await message.answer(
         f"Это ваши данные?{data.values()}\n(да/нет)")
@@ -61,14 +63,17 @@ async def continue_reg_sgo(message: Message, state: FSMContext):
     pass
 
 
-async def school_info(message: Message):
-    await collector.school()
-
+async def school_info(message: Message, dao: HolderDao):
+    user = await get_sgo_user(message.from_user.id, dao.sgo)
+    print(user)
+    mes = await collector.school((user.login, user.password, user.school))
+    await message.answer(mes)
 
 
 def setup_sgo(dp: Dispatcher):
     router = Router(name=__name__)
     router.message.register(login_cmd, Command('login'))
+    router.message.register(school_info, Command('school'))
     router.message.register(login, SGORegistrate.choosing_login)
     router.message.register(password, SGORegistrate.choosing_password)
     router.message.register(school, SGORegistrate.choosing_school)
