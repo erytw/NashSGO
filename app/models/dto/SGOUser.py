@@ -18,3 +18,7 @@ class SGOUser:
             password=data['password'],
             school=data['school'],
         )
+
+    @property
+    def to_sgo(self) -> tuple[str, str, str]:
+        return self.login, self.password, self.school

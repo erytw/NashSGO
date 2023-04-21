@@ -65,9 +65,8 @@ async def continue_reg_sgo(message: Message, state: FSMContext):
 
 async def school_info(message: Message, dao: HolderDao):
     user = await get_sgo_user(message.from_user.id, dao.sgo)
-    print(user)
-    mes = await collector.school((user.login, user.password, user.school))
-    await message.answer(mes)
+    ans = await collector.school(user.to_sgo)
+    await message.answer(ans)
 
 
 def setup_sgo(dp: Dispatcher):

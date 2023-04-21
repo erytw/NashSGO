@@ -11,11 +11,11 @@ class SGOUserDAO(BaseDAO[SGOUser]):
     def __init__(self, session: AsyncSession):
         super().__init__(SGOUser, session)
 
-    async def get_by_tg_id(self, tg_id: int) -> SGOUser:
+    async def get_by_tg_id(self, tg_id: int) -> dto.SGOUser:
         result = await self.session.execute(
             select(SGOUser).where(SGOUser.tg_id == tg_id)
         )
-        return result.scalar_one()
+        return result.scalar_one().to_dto()
 
     async def upsert_user(self, user: dto.SGOUser) -> dto.SGOUser:
         kwargs = dict(
