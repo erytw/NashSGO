@@ -3,7 +3,7 @@ from functools import wraps
 
 from netschoolapi import NetSchoolAPI
 
-from constants import HOST
+from app.sgo.constants import HOST
 
 
 def login(method):

@@ -1,9 +1,9 @@
-pyyaml~=6.0
-colorlog~=6.7.0
-aiogram>=3.0.0b5
+pyyaml>=6.0
+colorlog>=6.7.0
+aiogram>=3.0.0b7
 aiogram_dialog>=2.0.0b11
-sqlalchemy~=2.0
-alembic~=1.9.2
-asyncpg~=0.27
-ujson~=5.5.0
-netschoolapi~=10.0.1
+sqlalchemy>=2.0
+alembic>=1.9.2
+asyncpg>=0.27
+ujson>=5.5.0
+netschoolapi>=11.0.0

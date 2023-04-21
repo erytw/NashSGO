@@ -2,9 +2,9 @@ from _datetime import datetime
 from functools import wraps
 from netschoolapi import errors, schemas
 
-from constants import SYMBOLS, RESPONSES, DAY_FORMAT
+from app.sgo.constants import SYMBOLS, RESPONSES, DAY_FORMAT
 
-import netschool
+from app.sgo import netschool
 
 
 def exception_handler(method):
