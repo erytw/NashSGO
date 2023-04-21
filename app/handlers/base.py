@@ -39,7 +39,7 @@ async def cancel_state(message: Message, state: FSMContext):
     # Cancel state and inform user about it
     await state.clear()
     # And remove keyboard (just in case)
-    await message.reply('Dialog stopped, data removed', reply_markup=ReplyKeyboardRemove())
+    await message.reply('Действие отменено', reply_markup=ReplyKeyboardRemove())
 
 
 async def chat_migrate(message: Message, chat: dto.Chat, dao: HolderDao):

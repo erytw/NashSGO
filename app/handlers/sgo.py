@@ -10,7 +10,6 @@ from app.dao.holder import HolderDao
 from app.sgo.data_wrapper import NetschoolCollector
 from app.services.SGOUser import get_sgo_user
 
-
 logger = logging.getLogger(__name__)
 collector = NetschoolCollector()
 
@@ -43,20 +42,20 @@ async def password(message: Message, state: FSMContext):
 async def school(message: Message, state: FSMContext):
     await state.update_data(school=message.text)
     data = await state.get_data()
-    await message.answer(
-        f"Это ваши данные?{data.values()}\n(да/нет)")
-    await state.set_state(SGORegistrate.save_to_db)
+    print(data)
+    if await collector.data_validator((data['login'],
+                                       data['password'],
+                                       data['school'])):
+        await state.set_state(SGORegistrate.save_to_db)
+    else:
+        await message.answer('Данные некорректны, попробуйте снова')
+        await message.answer('Введите логин:')
+        await state.set_state(SGORegistrate.choosing_login)
 
 
 async def approve_data_sgo(message: Message, state: FSMContext):
-    if message.text.lower() == 'да':
-        await message.answer(text="Аккаунт Добавлен")
-        await state.clear()
-    elif message.text.lower() == 'нет':
-        await state.clear()
-        await message.answer(
-            'Попробуем снова, введите логин:')
-        await state.set_state(SGORegistrate.choosing_login)
+    await message.answer(text="Аккаунт Добавлен")
+    await state.clear()
 
 
 async def continue_reg_sgo(message: Message, state: FSMContext):
