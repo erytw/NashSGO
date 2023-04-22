@@ -1,4 +1,4 @@
-from _datetime import datetime
+from _datetime import datetime, timedelta
 from functools import wraps
 from netschoolapi import errors, schemas
 
@@ -58,9 +58,8 @@ def form_period_report(schedule: list[schemas.Day],
     data = get_period_report(schedule)
     result = []
     for subject, marks in data.items():
-        # result.append(f"{subject}: {''.join(SYMBOLS[ RESPONSES,mark] for mark in marks)}\nСредний балл: {sum(marks)/len(marks)}")
-        result.append(
-            f"{subject}: {''.join(str(mark) for mark in marks)}")
+        result.append(f"{subject}: {''.join(SYMBOLS[mark] for mark in marks)}")
+        # result.append(f"{subject}: {''.join(str(mark) for mark in marks)}")
         if show_average:
             # result[-1] += f"\nСредний балл: {round(sum(marks)/len(marks), 2)}"
             result[-1] += f"  Ср: {round(sum(marks) / len(marks), 2)}"
@@ -113,7 +112,7 @@ class NetschoolCollector:
 
     @exception_handler
     async def period_marks(self, lgdata,
-                           start_date: datetime = datetime.now(),
+                           start_date: datetime = datetime.now() - timedelta(days=7),
                            end_date: datetime = datetime.now(),
                            show_average: bool = True):
         """Получение оценок за период"""

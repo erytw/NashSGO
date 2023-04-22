@@ -41,6 +41,7 @@ def main():
 def get_paths() -> Paths:
     if path := os.getenv("BOT_PATH"):
         return Paths(Path(path))
+
     return Paths(Path(__file__).parent.parent)
 
 

@@ -1,4 +1,5 @@
 import logging
+import app.handlers.keyboards as kb
 
 from aiogram import Dispatcher, F, Router
 from aiogram.filters import Command
@@ -15,7 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 async def start_cmd(message: Message):
-    await message.reply("Hi!")
+    await message.reply("Здравствуйте!\n"
+                        "SG40 - бот для взаимодействия с Сетевым Городом.\n"
+                        "Предлагаем вам пройти регистрацию.", reply_markup=kb.register)
 
 
 async def chat_id(message: Message):

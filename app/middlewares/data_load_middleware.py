@@ -9,7 +9,7 @@ from app.models import dto
 from app.services.chat import upsert_chat
 from app.services.user import upsert_user
 from app.services.SGOUser import upsert_sgo_user
-from app.handlers.sgo import SGORegistrate
+from app.handlers.sgo import SGOInterface
 
 
 class LoadDataMiddleware(BaseMiddleware):
@@ -22,7 +22,7 @@ class LoadDataMiddleware(BaseMiddleware):
         holder_dao = data["dao"]
         data["user"] = await save_user(data, holder_dao)
         data["chat"] = await save_chat(data, holder_dao)
-        if await data['state'].get_state() == SGORegistrate.save_to_db:
+        if await data['state'].get_state() == SGOInterface.save_to_db:
             data['sgo'] = await save_sgo_user(data, holder_dao)
         return await handler(event, data)
 
