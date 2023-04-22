@@ -44,7 +44,6 @@ async def login(message: Message, state: FSMContext):
 async def password(message: Message, state: FSMContext):
     await state.update_data(password=message.text)
     data = await state.get_data()
-    print(data)
     if await collector.data_validator((data['login'], data['password'], data['school'])):
         await message.answer(text="Аккаунт Добавлен🤩", reply_markup=kb.call_main_menu)
         await state.set_state(SGOInterface.save_to_db)
