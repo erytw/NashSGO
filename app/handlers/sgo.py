@@ -24,7 +24,7 @@ class SGOInterface(StatesGroup):
 
 
 async def registration(message: Message, state: FSMContext):
-    await message.answer(text="Выберите школу:", reply_markup=kb.remove)
+    await message.answer(text="Выберите школу:\n(`МБОУ \"Средняя общеобразовательная школа № x\" г. Калуги`)", reply_markup=kb.remove)
     await state.set_state(SGOInterface.choosing_school)
 
 

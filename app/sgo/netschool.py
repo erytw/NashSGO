@@ -30,6 +30,7 @@ class SGOProc:
 
     @login
     async def empty_request(self):
+        """Пустой запрос для сверки данных"""
         return
 
     @login
