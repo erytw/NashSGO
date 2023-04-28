@@ -1,0 +1,8 @@
+bot:
+  token: ""
+  log_chat: -1001934932659
+  botapi:
+    type: official
+db:
+  type: sqlite+aiosqlite
+  path: /db.db
