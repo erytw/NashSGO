@@ -13,4 +13,33 @@
 * Создание отчетов об успеваемости
 
 ### Запуск на своей машине
-* to be continued
+
+* Клонируем [репозиторий](https://github.com/erytw/NashSGO)
+```shell
+git clone https://github.com/erytw/NashSGO.git
+```
+
+* Переходим в каталог репозитория и устанавливаем зависимости
+```shell
+cd NashSGO
+pip install -r requirements.txt
+```
+
+* Переименовываем ```config_``` в ```config```
+  - Для linux
+  ```shell
+  mv congig_ config
+  ```
+  - Для Win
+  ```shell
+  ren congig_ config
+  ```
+* Переходим в ```/config``` и в файле ```config.yaml``` вставляем свой BotToken, полученный у @BotFather и id чата для для ошибок
+* Применяем миграции
+```shell
+  alembic upgrade head
+  ```
+* Запускаем бота
+```shell
+python3 -m app
+```
